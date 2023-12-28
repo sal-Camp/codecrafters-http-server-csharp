@@ -29,6 +29,8 @@ else
     response = requestTarget == "/" ? HttpResponse.Ok() : HttpResponse.NotFound();
 }
 
+socket.Send(response);
+
 
 internal class HttpResponse
 {
