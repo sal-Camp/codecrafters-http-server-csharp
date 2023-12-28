@@ -20,7 +20,7 @@ if (path[1] == "echo")
 {
     var textStart = request.IndexOf("/echo/");
     var textEnd = request.IndexOf("HTTP/1.1");
-    var text = request.Substring(textStart + 6, textEnd - 7);
+    var text = request.Substring(textStart + 6, textEnd - textStart - 7);
     response = HttpResponse.Ok(text);
     socket.Send(response);
 }
