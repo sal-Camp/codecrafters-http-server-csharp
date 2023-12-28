@@ -15,6 +15,7 @@ var request = Encoding.UTF8.GetString(buffer);
 var path = request.Split(' ')[1];
 
 var response = path == "/" ? HttpResponse.Ok() : HttpResponse.NotFound();
+socket.Send(response);
 internal class HttpResponse
 {
     internal static byte[] Ok() {
