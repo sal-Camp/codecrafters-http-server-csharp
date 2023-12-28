@@ -10,49 +10,41 @@ server.Start();
 var socket = server.AcceptSocket(); // wait for client
 var buffer = new byte[1024];
 socket.Receive(buffer);
-
 var request = Encoding.UTF8.GetString(buffer);
-var parsedRequest = new HttpRequest(request);
 
-var response = HttpResponse.Ok(parsedRequest);
-socket.Send(response);
+var requestTarget = request.Split(' ')[1];
+var path = requestTarget.Split('/');
+byte[] response;
+
+if (path[1] == "echo")
+{
+    var textStart = request.IndexOf("/echo/");
+    var textEnd = request.IndexOf("HTTP/1.1");
+    var text = request.Substring(textStart + 6, textEnd - 7);
+    response = HttpResponse.Ok(text);
+    socket.Send(response);
+}
+else
+{
+    response = requestTarget == "/" ? HttpResponse.Ok() : HttpResponse.NotFound();
+}
+
+
 internal class HttpResponse
 {
-    internal static byte[] Ok(HttpRequest parsedRequest) {
-        return Encoding.UTF8.GetBytes(
-            "HTTP/1.1 200 OK\r\n\r\n" +
-            "Content-Type: text/plain\r\n\r\n" +
-            "Content-Length: " + $"{parsedRequest.PathContent.Length}" + "\r\n\r\n" +
-            "\r\n\r\n" +
-            $"{parsedRequest.PathContent}"
-            );
+    internal static byte[] Ok(string? body = null)
+    {
+        var basicResponse = $"HTTP/1.1 200 OK\r\n";
+        if (body is null)
+            return Encoding.UTF8.GetBytes(basicResponse + "\r\n");
+        string response = "HTTP/1.1 200 OK\r\n" + "Content-Type: text/plain\r\n" +
+                          $"Content-Length: {body.Length}\r\n" + "\r\n" + $"{body}";
+        Console.WriteLine(response);
+
+        return Encoding.UTF8.GetBytes(response);
     }
 
     internal static byte[] NotFound() {
         return Encoding.UTF8.GetBytes("HTTP/1.1 404 Not Found\r\n\r\n");
-    }
-}
-
-internal class HttpRequest
-{
-    internal HttpRequest(string request)
-    {
-        Request = request;
-        ParseRequest();
-    }
-
-    private string Request;
-    public string RequestType;
-    public string HttpVersion;
-    public string Path;
-    public string PathContent;
-
-    internal void ParseRequest()
-    {
-        RequestType = Request.Split(' ')[0];
-        Path = Request.Split(' ')[1];
-        HttpVersion = Request.Split(' ')[2];
-        PathContent = Path[(Path.IndexOf('/', Path.IndexOf('/') + 1) + 1)..];
-
     }
 }
