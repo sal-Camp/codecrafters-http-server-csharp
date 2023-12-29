@@ -10,43 +10,67 @@ server.Start();
 var socket = server.AcceptSocket(); // wait for client
 var buffer = new byte[1024];
 socket.Receive(buffer);
-var request = Encoding.UTF8.GetString(buffer);
-
-var requestTarget = request.Split(' ')[1];
-var path = requestTarget.Split('/');
+var request = new HttpRequest(buffer);
 byte[] response;
 
-if (path[1] == "echo")
+if (request.Path.Contains("echo"))
 {
-    var textStart = request.IndexOf("/echo/");
-    var textEnd = request.IndexOf("HTTP/1.1");
-    var text = request.Substring(textStart + 6, textEnd - textStart - 7);
-    response = HttpResponse.Ok(text);
-    socket.Send(response);
+    var text = request.Path[(6)..];
+    response = HttpResponse.OK(text);
+} else if (request.Path.Contains("/user-agent"))
+{
+    response = HttpResponse.OK(request.Headers.UserAgent);
 }
 else
 {
-    response = requestTarget == "/" ? HttpResponse.Ok() : HttpResponse.NotFound();
+    response = request.Path == "/" ? HttpResponse.OK() : HttpResponse.NotFound();
 }
 
 socket.Send(response);
 
-
-internal class HttpResponse
+internal class HttpRequest
 {
-    internal static byte[] Ok(string? body = null)
+    public string Method { get; }
+    public string Path { get; }
+    public HttpHeaders Headers { get; }
+    public HttpRequest(byte[] buffer)
     {
-        var basicResponse = $"HTTP/1.1 200 OK\r\n";
+        var requestString = Encoding.UTF8.GetString(buffer);
+
+        Method = requestString.Split("/")[0];
+        Path = requestString.Split("\r\n")[0].Split(' ')[1];
+        Headers = new HttpHeaders(requestString);
+    }
+
+    internal class HttpHeaders
+    {
+        public string UserAgent { get; }
+        public HttpHeaders(string requestString)
+        {
+            var uaIndex = requestString.IndexOf("User-Agent", StringComparison.Ordinal);
+            UserAgent = requestString[(uaIndex + "User-Agent: ".Length)..].Split("\r")[0];
+        }
+    }
+}
+
+internal static class HttpResponse
+{
+    private const string BasicResponse = "HTTP/1.1 200 OK\r\n";
+
+    internal static byte[] OK(string? body = null)
+    {
         if (body is null)
-            return Encoding.UTF8.GetBytes(basicResponse + "\r\n");
-        string response = "HTTP/1.1 200 OK\r\n" + "Content-Type: text/plain\r\n" +
-                          $"Content-Length: {body.Length}\r\n" + "\r\n" + $"{body}";
+            return Encoding.UTF8.GetBytes(BasicResponse + "\r\n");
+        var response = BasicResponse + "Content-Type: text/plain\r\n" +
+                       $"Content-Length: {body.Length}\r\n\r\n" + $"{body}";
+
         Console.WriteLine(response);
 
         return Encoding.UTF8.GetBytes(response);
     }
 
-    internal static byte[] NotFound() {
+    internal static byte[] NotFound()
+    {
         return Encoding.UTF8.GetBytes("HTTP/1.1 404 Not Found\r\n\r\n");
     }
 }
