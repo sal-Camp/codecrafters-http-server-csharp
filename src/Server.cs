@@ -99,7 +99,7 @@ internal static class HttpResponse
 
     internal static byte[] OkWithFileContent(string? body = null)
     {
-        var contentType = $"Content-Type: application/octect-stream\r\n";
+        var contentType = $"Content-Type: application/octet-stream\r\n";
         if (body is null)
             return Encoding.UTF8.GetBytes(BasicResponse + "\r\n" + contentType + "\r\n");
 
