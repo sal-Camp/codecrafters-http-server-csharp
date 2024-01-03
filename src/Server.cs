@@ -71,9 +71,8 @@ internal class HttpRequest
             FilePath = Path[(7)..]; // everything after '/files/'
         }
 
-        string[] requestParts = requestString.Split("\n\n");
-        Body = requestParts.Length > 1 ? requestParts[1] : null;
-        Body = Body?.Trim('\0');
+        int bodyIndex = requestString.IndexOf("\r\n\r\n", StringComparison.Ordinal) + 4;
+        Body = requestString[bodyIndex..];
         Console.WriteLine($"{Body}");
         Headers = new HttpHeaders(requestString);
     }
