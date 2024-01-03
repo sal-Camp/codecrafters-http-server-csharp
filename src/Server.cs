@@ -35,7 +35,7 @@ static void HandleRequest(Socket socket, string? directoryPath = null)
     {
         if (request.Body is not null)
         {
-            Console.WriteLine($"Writing to file @ {directoryPath}" + "/" + "request.FilePath");
+            Console.WriteLine($"Writing to file @ {directoryPath}" + "/" + request.FilePath);
             File.WriteAllText($"{directoryPath}" + "/" + request.FilePath, request.Body);
         }
         response = HttpResponse.Created();
