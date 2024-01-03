@@ -38,6 +38,7 @@ static void HandleRequest(Socket socket, string? directoryPath = null)
         {
             Console.WriteLine("Writing to file...");
             file.Write(request.Body);
+            Console.WriteLine(File.ReadAllText($"File content: {directoryPath}" + "/" + request.FilePath));
         }
         file.Close();
         response = HttpResponse.Created();
