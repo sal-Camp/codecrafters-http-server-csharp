@@ -1,8 +1,6 @@
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
-using System.CommandLine;
-using System.CommandLine.Invocation;
 
 // You can use print statements as follows for debugging, they'll be visible when running tests.
 Console.WriteLine("Logs from your program will appear here!");
