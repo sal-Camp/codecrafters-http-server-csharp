@@ -35,7 +35,10 @@ static void HandleRequest(Socket socket, string? directoryPath = null)
     {
         FileStream file = File.OpenWrite($"{directoryPath}" + "/" + request.FilePath);
         if (request.Body is not null)
-            file.Write(Encoding.UTF8.GetBytes(request.Body));
+        {
+            Console.WriteLine("Writing to file...");
+            file.Write(request.Body);
+        }
         file.Close();
         response = HttpResponse.Created();
     } else if (request.Path.Contains("echo")) {
@@ -58,7 +61,7 @@ internal class HttpRequest
     public MethodType Method { get; }
     public string Path { get; }
     public string? FilePath { get; }
-    public string? Body { get; }
+    public byte[]? Body { get; }
     public HttpHeaders Headers { get; }
     public HttpRequest(byte[] buffer)
     {
@@ -72,7 +75,7 @@ internal class HttpRequest
         }
 
         int bodyIndex = requestString.IndexOf("\r\n\r\n", StringComparison.Ordinal) + 4;
-        Body = requestString[bodyIndex..];
+        Body = Encoding.UTF8.GetBytes(requestString[bodyIndex..].Trim('\0'));
         Console.WriteLine($"Body: {Body}");
         Headers = new HttpHeaders(requestString);
     }
