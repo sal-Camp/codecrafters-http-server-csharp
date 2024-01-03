@@ -73,7 +73,7 @@ internal class HttpRequest
 
         int bodyIndex = requestString.IndexOf("\r\n\r\n", StringComparison.Ordinal) + 4;
         Body = requestString[bodyIndex..];
-        Console.WriteLine($"{Body}");
+        Console.WriteLine($"Body: {Body}");
         Headers = new HttpHeaders(requestString);
     }
 
