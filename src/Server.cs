@@ -31,8 +31,15 @@ static void HandleRequest(Socket socket, string? directoryPath = null)
     var request = new HttpRequest(buffer);
     byte[] response;
 
-    if (request.Path.Contains("echo")) {
-        var text = request.Path[(6)..]; // get everything after '/echo/'
+    if (request.Method == MethodType.Post)
+    {
+        FileStream file = File.OpenWrite($"{directoryPath}" + "/" + request.FilePath);
+        if (request.Body is not null)
+            file.Write(Encoding.UTF8.GetBytes(request.Body));
+        file.Close();
+        response = HttpResponse.Ok201();
+    } else if (request.Path.Contains("echo")) {
+        string text = request.Path[(6)..]; // get everything after '/echo/'
         response = HttpResponse.Ok(text);
     } else if (request.Path.Contains("/user-agent")) {
         response = HttpResponse.Ok(request.Headers.UserAgent);
@@ -48,20 +55,23 @@ static void HandleRequest(Socket socket, string? directoryPath = null)
 
 internal class HttpRequest
 {
-    public string Method { get; }
+    public MethodType Method { get; }
     public string Path { get; }
     public string? FilePath { get; }
+    public string? Body { get; }
     public HttpHeaders Headers { get; }
     public HttpRequest(byte[] buffer)
     {
         var requestString = Encoding.UTF8.GetString(buffer);
 
-        Method = requestString.Split("/")[0];
+        Method = requestString.Split("/")[0].Contains("GET") ? MethodType.Get : MethodType.Post;
         Path = requestString.Split("\r\n")[0].Split(' ')[1];
         if (Path.Contains("/files"))
         {
             FilePath = Path[(7)..]; // everything after '/files/'
         }
+
+        Body = requestString[requestString.IndexOf("\r\n" + 2, StringComparison.Ordinal)..];
         Headers = new HttpHeaders(requestString);
     }
 
@@ -108,4 +118,15 @@ internal static class HttpResponse
         Console.WriteLine(response);
         return Encoding.UTF8.GetBytes(response);
     }
+
+    internal static byte[] Ok201()
+    {
+        return Encoding.UTF8.GetBytes("HTTP/1.1 201 OK\r\n");
+    }
+}
+
+internal enum MethodType
+{
+    Get,
+    Post
 }
