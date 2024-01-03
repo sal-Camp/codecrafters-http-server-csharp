@@ -74,6 +74,7 @@ internal class HttpRequest
         string[] requestParts = requestString.Split("\n\n");
         Body = requestParts.Length > 1 ? requestParts[1] : null;
         Body = Body?.Trim('\0');
+        Console.WriteLine($"{Body}");
         Headers = new HttpHeaders(requestString);
     }
 
