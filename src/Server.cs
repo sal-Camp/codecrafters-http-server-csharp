@@ -1,6 +1,8 @@
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.CommandLine;
+using System.CommandLine.Invocation;
 
 // You can use print statements as follows for debugging, they'll be visible when running tests.
 Console.WriteLine("Logs from your program will appear here!");
@@ -10,13 +12,10 @@ server.Start();
 
 string? directoryPath = null;
 
-foreach (string arg in args)
+for (int i = 0; i < args.Length; i++)
 {
-    if (arg.StartsWith("--directory"))
-    {
-        directoryPath = arg.Split('=')[1];
-        break;
-    }
+    if (args[i] == "--directory" && i+1 < args.Length)
+        directoryPath = args[i + 1];
 }
 
 while (true)
