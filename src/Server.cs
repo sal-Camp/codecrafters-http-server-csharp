@@ -37,7 +37,7 @@ static void HandleRequest(Socket socket, string? directoryPath = null)
         if (request.Body is not null)
             file.Write(Encoding.UTF8.GetBytes(request.Body));
         file.Close();
-        response = HttpResponse.Ok201();
+        response = HttpResponse.Created();
     } else if (request.Path.Contains("echo")) {
         string text = request.Path[(6)..]; // get everything after '/echo/'
         response = HttpResponse.Ok(text);
@@ -121,9 +121,9 @@ internal static class HttpResponse
         return Encoding.UTF8.GetBytes(response);
     }
 
-    internal static byte[] Ok201()
+    internal static byte[] Created()
     {
-        return Encoding.UTF8.GetBytes("HTTP/1.1 201 OK\r\n");
+        return Encoding.UTF8.GetBytes("HTTP/1.1 201 Created\r\n");
     }
 }
 
