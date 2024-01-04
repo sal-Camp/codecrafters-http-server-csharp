@@ -37,6 +37,8 @@ static void HandleRequest(Socket socket, string? directoryPath = null)
         {
             Console.WriteLine($"Writing to file @ {directoryPath}" + request.FilePath);
             File.WriteAllText($"{directoryPath}"  + request.FilePath, request.Body);
+            var written = File.ReadAllText($"{directoryPath}" + request.FilePath);
+            Console.WriteLine($"Written: {written}");
         }
         response = HttpResponse.Created();
     } else if (request.Path.Contains("echo")) {
