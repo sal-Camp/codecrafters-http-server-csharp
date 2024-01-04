@@ -36,10 +36,24 @@ static void HandleRequest(Socket socket, string? directoryPath = null)
     {
         if (request.Body is not null)
         {
-            Console.WriteLine($"Writing to file @ {directoryPath}" + request.FilePath);
+            /*Console.WriteLine($"Writing to file @ {directoryPath}" + request.FilePath);
             File.WriteAllText($"{directoryPath}"  + request.FilePath, request.Body);
             var written = File.ReadAllText($"{directoryPath}" + request.FilePath);
-            Console.WriteLine($"Written: {written}");
+            Console.WriteLine($"Written: {written}");*/
+
+            using (StreamWriter writer = new StreamWriter($"{directoryPath}" + request.FilePath, append: true))
+            {
+                writer.AutoFlush = true;
+                writer.WriteLine(request.Body);
+                Console.WriteLine($"Writing to file @ {directoryPath}" + request.FilePath);
+            }
+
+            using (StreamReader reader = new StreamReader($"{directoryPath}" + request.FilePath))
+            {
+                var written = reader.ReadToEnd();
+                Console.WriteLine($"Written: {written}");
+            }
+
             response = HttpResponse.Created();
         }
         else
