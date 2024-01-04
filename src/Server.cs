@@ -53,7 +53,7 @@ static void HandleRequest(Socket socket, string? directoryPath = null)
     }
 
     socket.Send(response); // send response to client
-    socket.Close();
+    //socket.Close();
 }
 
 internal class HttpRequest
