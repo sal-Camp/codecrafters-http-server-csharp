@@ -38,11 +38,14 @@ static void HandleRequest(Socket socket, string? directoryPath = null)
         {
             Console.WriteLine($"Writing to file @ {directoryPath}" + request.FilePath);
             File.WriteAllText($"{directoryPath}"  + request.FilePath, request.Body);
-            File.Open($"{directoryPath}" + request.FilePath, FileMode.Open);
-            //var written = File.ReadAllText($"{directoryPath}" + request.FilePath);
-            //Console.WriteLine($"Written: {written}");
+            var written = File.ReadAllText($"{directoryPath}" + request.FilePath);
+            Console.WriteLine($"Written: {written}");
+            response = HttpResponse.Created();
         }
-        response = HttpResponse.Created();
+        else
+        {
+            response = HttpResponse.NotFound();
+        }
     } else if (request.Path.Contains("echo")) {
         string text = request.Path[(6)..]; // get everything after '/echo/'
         response = HttpResponse.Ok(text);
