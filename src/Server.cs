@@ -53,7 +53,7 @@ static void HandleRequest(Socket socket, string? directoryPath = null)
     }
 
     socket.Send(response); // send response to client
-    //socket.Close();
+    socket.Close();
 }
 
 internal class HttpRequest
@@ -65,7 +65,8 @@ internal class HttpRequest
     public HttpHeaders Headers { get; }
     public HttpRequest(byte[] buffer)
     {
-        var requestString = Encoding.UTF8.GetString(buffer);
+        var filteredBuffer = buffer.Where(b => b != 0).ToArray();
+        var requestString = Encoding.UTF8.GetString(filteredBuffer);
 
         Method = requestString.Split("/")[0].Contains("GET") ? MethodType.Get : MethodType.Post;
         Path = requestString.Split("\r\n")[0].Split(' ')[1];
