@@ -128,7 +128,7 @@ internal static class HttpResponse
     internal static byte[] Created()
     {
         var createdResponse = Encoding.UTF8.GetBytes("HTTP/1.1 201 Created\r\n");
-        Console.WriteLine(createdResponse);
+        Console.WriteLine($"{Encoding.UTF8.GetString(createdResponse)}");
         return createdResponse;
     }
 }
