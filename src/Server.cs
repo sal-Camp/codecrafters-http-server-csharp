@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using Microsoft.VisualBasic;
 
 // You can use print statements as follows for debugging, they'll be visible when running tests.
 Console.WriteLine("Logs from your program will appear here!");
@@ -37,8 +38,9 @@ static void HandleRequest(Socket socket, string? directoryPath = null)
         {
             Console.WriteLine($"Writing to file @ {directoryPath}" + request.FilePath);
             File.WriteAllText($"{directoryPath}"  + request.FilePath, request.Body);
-            var written = File.ReadAllText($"{directoryPath}" + request.FilePath);
-            Console.WriteLine($"Written: {written}");
+            File.Open($"{directoryPath}" + request.FilePath, FileMode.Open);
+            //var written = File.ReadAllText($"{directoryPath}" + request.FilePath);
+            //Console.WriteLine($"Written: {written}");
         }
         response = HttpResponse.Created();
     } else if (request.Path.Contains("echo")) {
